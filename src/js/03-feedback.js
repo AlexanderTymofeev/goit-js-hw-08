@@ -1,31 +1,27 @@
 import throttle from 'lodash.throttle';
 
-const STORAGE_KEY = 'feedback-form-state';
-
-const formData = {};
-
+    
+    
 const refs = {
     form: document.querySelector('.feedback-form'),
     textarea: document.querySelector('.feedback-form textarea'),
     input: document.querySelector('.feedback-form input'),
 };
+    
+const STORAGE_KEY = 'feedback-form-state';
+    
+let formData = {};
 
 refs.form.addEventListener('submit', onFormSubmit);
-refs.textarea.addEventListener('input', throttle(onTextareaInput, 500));
+refs.form.addEventListener('input', throttle(onTextareaInput, 500));
 
-populateTextarea();
-
-    refs.form.addEventListener('input', evt => {
- 
-    formData[evt.target.name] = evt.target.value;
-    
-})
 
 function onFormSubmit(evt) {
 
     evt.preventDefault();
 
-    console.log(formData);
+    console.log(`${refs.input.name}:`, refs.input.value);
+    console.log(`${refs.textarea.name}:`, refs.textarea.value);
     
     evt.currentTarget.reset();
 
@@ -34,7 +30,9 @@ function onFormSubmit(evt) {
 
 function onTextareaInput(evt) {
 
-    formData[evt.target.name] = evt.target.value;
+    formData[refs.textarea.name] = refs.textarea.value;
+    
+    formData[refs.input.name] = refs.input.value;
     
     const saveDataEl = JSON.stringify(formData);
     
@@ -42,28 +40,21 @@ function onTextareaInput(evt) {
     
 }
 
+const savedMessage = localStorage.getItem(STORAGE_KEY);
+const pasrsedSav = JSON.parse(savedMessage);
+
 function populateTextarea() {
 
-    const savedMessage = localStorage.getItem(STORAGE_KEY);
-    
     if (savedMessage) {
       
-        const pasrsedSav = JSON.parse(savedMessage);
+        const keys = Object.keys(pasrsedSav);
         
-        let formData = {};
+        for (const key of keys) {
         
-        console.log(pasrsedSav);
-        
-        formData = pasrsedSav;
-        
-        refs.textarea.value = pasrsedSav.message;
-        
-    refs.input.value = pasrsedSav.email;
+            refs.form.elements[key].value = pasrsedSav[key];
+            
     }
+  }
 }
 
-
-
-
-
-
+populateTextarea();
